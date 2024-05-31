@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { ReactTabulator } from "react-tabulator";
 import "tabulator-tables/dist/css/tabulator.min.css";
 import "react-tabulator/lib/styles.css";
@@ -33,6 +33,7 @@ const EditableTable = () => {
       hozAlign: "center",
       headerSort: false,
       cellClick: (e, cell) => {
+        e.stopPropagation(); 
         cell.getRow().toggleSelect();
       },
     },
@@ -56,33 +57,10 @@ const EditableTable = () => {
     },];
 
 
-  
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     setTimeout(() => {
-  //       const result = [
-  //         { id: 1, name: "John", age: 28, gender: "Male", rating: 4.5, editable: false },
-  //         { id: 2, name: "Jane", age: 32, gender: "Female", rating: 4.0, editable: false},
-  //         { id: 3, name: "Harish", age: 26, gender: "Male", rating: 4.5, editable: false},
-  //         { id: 4, name: "Kani", age: 29, gender: "Male", rating: 4.0, editable: false},
-  //         { id: 5, name: "Madhu", age: 35, gender: "Male", rating: 4.5, editable: false },
-  //         { id: 6, name: "Vignesh", age: 25, gender: "Male", rating: 4.0, editable: false },
-  //         { id: 7, name: "Mari", age: 28, gender: "Male", rating: 4.5, editable: false },
-  //         { id: 8, name: "saatty", age: 25, gender: "Male", rating: 4.0, editable: false },
-  //         { id: 9, name: "Su", age: 26, gender: "Male", rating: 4.5,editable: false },
-  //         { id: 10, name: "Ashwin", age: 26, gender: "Male", rating: 4.6, editable: false },
-  //       ];
-  //       setData(result);
-  //     }, 100);
-  //   };
-  //   fetchData();
-  // }, []);
-
   const handleRowSelection = (selectedData) => {
     setEditMode(false);
-    console.log(selectedData);
-    setSelectedRows([...selectedRows,selectedData.id]);
+    const selectedIds = selectedData.map(data => data.id);
+    setSelectedRows([...selectedIds]);
   };
 
   const handleEdit = () => {
@@ -96,27 +74,31 @@ const EditableTable = () => {
     })
   };
 
-
   const handleSave = () => {
     setEditMode(false);
+    setData((prevData) => {
+      return prevData.map((row) => ({ ...row, editable: false }));
+    });
   };
 
   const handleUndo = () => {
     setEditMode(false);
+    setData((prevData) => {
+      return prevData.map((row) => ({ ...row, editable: false }));
+    });
   };
 
   const events = {
     rowClick: (e, row) => {
+      e.preventDefault();
       console.log("Row clicked:", row.getData());
     },
     cellClick: (e, cell) => {
-      if (cell.getColumn().getField() !== undefined) {
-        e.stopPropagation();
+      if (cell.getColumn().getField() !== "checkbox") {
+        console.log("Cell clicked:", cell.getField(), cell.getValue());
       }
-      console.log("Cell clicked:", cell.getField(), cell.getValue());
     },
     rowSelectionChanged: (data, rows) => {
-      console.log("Selected rows:", data);
       handleRowSelection(data);
     },
     cellEdited: (cell) => {
@@ -133,10 +115,10 @@ const EditableTable = () => {
           <button id="edit-button" onClick={handleEdit} disabled={editMode}>
             {selectedRows.length > 1 ? "Multi Edit" : "Edit"}
           </button>
-          <button id="save-button" onClick={handleSave} disabled={!editMode}>
+          <button id="save-button" onClick={handleSave} disabled={editMode}>
             Save
           </button>
-          <button id="undo-button" onClick={handleUndo} disabled={!editMode}>
+          <button id="undo-button" onClick={handleUndo} disabled={editMode}>
             Undo
           </button>
         </div>
@@ -144,12 +126,21 @@ const EditableTable = () => {
       {
         selectedRows
       }
+      {
+        data.map((row) => {
+          return (
+            <div key={row.id}>
+              {row.id} - {row.name} - {row.age} - {row.editable.toString()}
+            </div>
+          );
+      }
+      )}
       <ReactTabulator
         ref={tableRef}
         columns={columns}
         data={data}
         layout="fitColumns"
-        selectable={true}
+        selectable={false}
         events={events}
         options={{
           headerFilterPlaceholder: "Filter...",
