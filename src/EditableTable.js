@@ -19,6 +19,7 @@ const EditableTable = () => {
   ]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [editMode, setEditMode] = useState(false);
+  const [backupData, setBackupData] = useState([]);
   const tableRef = useRef(null);
 
   const editCheck = function(cell){
@@ -32,6 +33,7 @@ const EditableTable = () => {
       titleFormatter: "rowSelection",
       hozAlign: "center",
       headerSort: false,
+      rowHandle: true,
       cellClick: (e, cell) => {
         e.stopPropagation(); 
         cell.getRow().toggleSelect();
@@ -67,6 +69,7 @@ const EditableTable = () => {
     setData((prevData) => {
       return prevData.map((row) => {
         if (selectedRows.includes(row.id)) {
+          setBackupData([backupData, row]);
           return { ...row, editable: true };
         }
         return row;
@@ -76,15 +79,22 @@ const EditableTable = () => {
 
   const handleSave = () => {
     setEditMode(false);
+    setBackupData([]);
     setData((prevData) => {
       return prevData.map((row) => ({ ...row, editable: false }));
     });
   };
 
   const handleUndo = () => {
+    console.log("in undo");
     setEditMode(false);
     setData((prevData) => {
-      return prevData.map((row) => ({ ...row, editable: false }));
+      return prevData.map((row) => {
+        if (backupData.map((data) => data.id).includes(row.id)) {
+          return backupData.find((data) => data.id === row.id);
+        }
+        return row;
+      });
     });
   };
 
@@ -95,14 +105,14 @@ const EditableTable = () => {
     },
     cellClick: (e, cell) => {
       if (cell.getColumn().getField() !== "checkbox") {
-        console.log("Cell clicked:", cell.getField(), cell.getValue());
+        console.log("Cell clicked:", cell.getRow().getData());
       }
     },
     rowSelectionChanged: (data, rows) => {
       handleRowSelection(data);
     },
     cellEdited: (cell) => {
-      console.log("cellEdited", cell);
+      console.log("cellEdited", cell.getRow().getData());
     },
   };
 
@@ -130,7 +140,7 @@ const EditableTable = () => {
         data.map((row) => {
           return (
             <div key={row.id}>
-              {row.id} - {row.name} - {row.age} - {row.editable.toString()}
+              {row.id} - {row.name} - {row.age} -{row.gender}- {row.editable.toString()}
             </div>
           );
       }
@@ -148,6 +158,7 @@ const EditableTable = () => {
           movableRows: true,
           pagination: "local",
           paginationSize: 3,
+
         }}
       />
     </div>
