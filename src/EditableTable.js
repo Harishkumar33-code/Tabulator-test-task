@@ -3,99 +3,9 @@ import { ReactTabulator } from "react-tabulator";
 import "tabulator-tables/dist/css/tabulator.min.css";
 import "react-tabulator/lib/styles.css";
 import "./EditableTable.css";
+import { tableData } from "./constants";
 
-const defaultData = [
-  {
-    id: 1,
-    name: "John",
-    age: 28,
-    gender: "Male",
-    checkbox: false,
-    rating: 4.5,
-    editable: false,
-  },
-  {
-    id: 2,
-    name: "Jane",
-    age: 32,
-    gender: "Female",
-    checkbox: false,
-    rating: 4.0,
-    editable: false,
-  },
-  {
-    id: 3,
-    name: "Harish",
-    age: 26,
-    gender: "Male",
-    checkbox: false,
-    rating: 4.5,
-    editable: false,
-  },
-  {
-    id: 4,
-    name: "Kani",
-    age: 29,
-    gender: "Male",
-    checkbox: false,
-    rating: 4.0,
-    editable: false,
-  },
-  {
-    id: 5,
-    name: "Madhu",
-    age: 35,
-    gender: "Male",
-    checkbox: false,
-    rating: 4.5,
-    editable: false,
-  },
-  {
-    id: 6,
-    name: "Vignesh",
-    age: 25,
-    gender: "Male",
-    checkbox: false,
-    rating: 4.0,
-    editable: false,
-  },
-  {
-    id: 7,
-    name: "Mari",
-    age: 28,
-    gender: "Male",
-    checkbox: false,
-    rating: 4.5,
-    editable: false,
-  },
-  {
-    id: 8,
-    name: "saatty",
-    age: 25,
-    gender: "Male",
-    checkbox: false,
-    rating: 4.0,
-    editable: false,
-  },
-  {
-    id: 9,
-    name: "Su",
-    age: 26,
-    gender: "Male",
-    checkbox: false,
-    rating: 4.5,
-    editable: false,
-  },
-  {
-    id: 10,
-    name: "Ashwin",
-    age: 26,
-    gender: "Male",
-    checkbox: false,
-    rating: 4.6,
-    editable: false,
-  },
-];
+const defaultData = tableData;
 
 const EditableTable = () => {
   const [data, setData] = useState(defaultData);
@@ -114,7 +24,7 @@ const EditableTable = () => {
 
   const columns = [
     {
-      formatter: (cell, formatterParams, onRendered) => {
+      formatter: (cell) => {
         const rowData = cell.getRow().getData();
         const isChecked = rowData.checkbox ? "checked" : "";
         return `<input type="checkbox" ${isChecked} />`;
@@ -139,6 +49,7 @@ const EditableTable = () => {
         });
         setData(alteredData);
       },
+      headerHozAlign: "center"
     },
     {
       title: "Name",
@@ -159,7 +70,7 @@ const EditableTable = () => {
       field: "gender",
       headerFilter: "select",
       headerFilterParams: { values: ["", "Male", "Female"] },
-      editor: "input",
+      editor: "select",
       editable: editCheck,
       editorParams: { values: ["Male", "Female"] },
       headerFilterFunc: "=",
@@ -242,10 +153,9 @@ const EditableTable = () => {
         setData(alteredData);
       }
     },
-    rowSelectionChanged: (data, rows) => {
+    rowSelectionChanged: (data) => {
       handleRowSelection(data);
     },
-    cellEdited: (cell) => {},
   };
 
   useEffect(() => {
@@ -283,14 +193,6 @@ const EditableTable = () => {
           </button>
         </div>
       )}
-      {/* {selectedRows}
-      {data.map((row) => {
-        return (
-          <div key={row.id}>
-            {row.id} - {row.name} - {row.age} - {row.editable.toString()}
-          </div>
-        );
-      })} */}
       <ReactTabulator
         ref={tableRef}
         columns={columns}
@@ -303,7 +205,7 @@ const EditableTable = () => {
           headerSortTristate: true,
           movableRows: true,
           pagination: "local",
-          paginationSize: 3,
+          paginationSize: 5,
           paginationInitialPage: currentPage,
           paginationCounter: function (pageSize, currentRow, currentPage) {
             setCurrentPage(currentPage);
