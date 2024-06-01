@@ -20,6 +20,7 @@ const EditableTable = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const tableRef = useRef(null);
+  const [headerChecked, setHeaderChecked] = useState(false);
 
   const editCheck = function(cell){
     var data = cell.getRow().getData();
@@ -35,15 +36,22 @@ const EditableTable = () => {
       },
       field: "checkbox",
       headerVisible: false,
-      titleFormatter: function () {
-        return "<input type='checkbox' id='header-check' />";
+      titleFormatter: function() {
+        return (
+          `<input
+            type="checkbox"
+            id="header-check"
+           ${headerChecked ?  'checked' : ''}
+            />`
+        );
       },
       hozAlign: "center",
       headerSort: false,
       headerClick: function (e, column) {
         const headerCheckbox = document.getElementById("header-check");
+        setHeaderChecked(headerCheckbox.checked);
         const alteredData = data.map((rowData) => {
-          rowData.checkbox = !rowData.checkbox;
+          rowData.checkbox = headerCheckbox.checked;
           return rowData;
         });
         setData(alteredData);
@@ -135,17 +143,17 @@ const EditableTable = () => {
   },[data])
 
   return (
-    <div>
-      <div>TABULATOR</div>
+    <div className="container">
+      <h1>Tabulator</h1>
       {selectedRows.length > 0 && (
         <div className="action-buttons">
-          <button id="edit-button" onClick={handleEdit} disabled={editMode}>
+          <button className="btn edit-btn" id="edit-button" onClick={handleEdit} disabled={editMode}>
             {selectedRows.length > 1 ? "Multi Edit" : "Edit"}
           </button>
-          <button id="save-button" onClick={handleSave} disabled={editMode}>
+          <button className="btn save-btn" id="save-button" onClick={handleSave} disabled={editMode}>
             Save
           </button>
-          <button id="undo-button" onClick={handleUndo} disabled={editMode}>
+          <button className="btn undo-btn" id="undo-button" onClick={handleUndo} disabled={editMode}>
             Undo
           </button>
         </div>
