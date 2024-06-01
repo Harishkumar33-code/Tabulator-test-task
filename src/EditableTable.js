@@ -4,105 +4,108 @@ import "tabulator-tables/dist/css/tabulator.min.css";
 import "react-tabulator/lib/styles.css";
 import "./EditableTable.css";
 
+const defaultData = [
+  {
+    id: 1,
+    name: "John",
+    age: 28,
+    gender: "Male",
+    checkbox: false,
+    rating: 4.5,
+    editable: false,
+  },
+  {
+    id: 2,
+    name: "Jane",
+    age: 32,
+    gender: "Female",
+    checkbox: false,
+    rating: 4.0,
+    editable: false,
+  },
+  {
+    id: 3,
+    name: "Harish",
+    age: 26,
+    gender: "Male",
+    checkbox: false,
+    rating: 4.5,
+    editable: false,
+  },
+  {
+    id: 4,
+    name: "Kani",
+    age: 29,
+    gender: "Male",
+    checkbox: false,
+    rating: 4.0,
+    editable: false,
+  },
+  {
+    id: 5,
+    name: "Madhu",
+    age: 35,
+    gender: "Male",
+    checkbox: false,
+    rating: 4.5,
+    editable: false,
+  },
+  {
+    id: 6,
+    name: "Vignesh",
+    age: 25,
+    gender: "Male",
+    checkbox: false,
+    rating: 4.0,
+    editable: false,
+  },
+  {
+    id: 7,
+    name: "Mari",
+    age: 28,
+    gender: "Male",
+    checkbox: false,
+    rating: 4.5,
+    editable: false,
+  },
+  {
+    id: 8,
+    name: "saatty",
+    age: 25,
+    gender: "Male",
+    checkbox: false,
+    rating: 4.0,
+    editable: false,
+  },
+  {
+    id: 9,
+    name: "Su",
+    age: 26,
+    gender: "Male",
+    checkbox: false,
+    rating: 4.5,
+    editable: false,
+  },
+  {
+    id: 10,
+    name: "Ashwin",
+    age: 26,
+    gender: "Male",
+    checkbox: false,
+    rating: 4.6,
+    editable: false,
+  },
+];
+
 const EditableTable = () => {
-  const [data, setData] = useState([
-    {
-      id: 1,
-      name: "John",
-      age: 28,
-      gender: "Male",
-      checkbox: false,
-      rating: 4.5,
-      editable: false,
-    },
-    {
-      id: 2,
-      name: "Jane",
-      age: 32,
-      gender: "Female",
-      checkbox: false,
-      rating: 4.0,
-      editable: false,
-    },
-    {
-      id: 3,
-      name: "Harish",
-      age: 26,
-      gender: "Male",
-      checkbox: false,
-      rating: 4.5,
-      editable: false,
-    },
-    {
-      id: 4,
-      name: "Kani",
-      age: 29,
-      gender: "Male",
-      checkbox: false,
-      rating: 4.0,
-      editable: false,
-    },
-    {
-      id: 5,
-      name: "Madhu",
-      age: 35,
-      gender: "Male",
-      checkbox: false,
-      rating: 4.5,
-      editable: false,
-    },
-    {
-      id: 6,
-      name: "Vignesh",
-      age: 25,
-      gender: "Male",
-      checkbox: false,
-      rating: 4.0,
-      editable: false,
-    },
-    {
-      id: 7,
-      name: "Mari",
-      age: 28,
-      gender: "Male",
-      checkbox: false,
-      rating: 4.5,
-      editable: false,
-    },
-    {
-      id: 8,
-      name: "saatty",
-      age: 25,
-      gender: "Male",
-      checkbox: false,
-      rating: 4.0,
-      editable: false,
-    },
-    {
-      id: 9,
-      name: "Su",
-      age: 26,
-      gender: "Male",
-      checkbox: false,
-      rating: 4.5,
-      editable: false,
-    },
-    {
-      id: 10,
-      name: "Ashwin",
-      age: 26,
-      gender: "Male",
-      checkbox: false,
-      rating: 4.6,
-      editable: false,
-    },
-  ]);
+  const [data, setData] = useState(defaultData);
   const [selectedRows, setSelectedRows] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const tableRef = useRef(null);
   const [headerChecked, setHeaderChecked] = useState(false);
   const [undoData, setUndoData] = useState([]);
   const [editedData, setEditedData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const editCheck = function (cell) {
     var data = cell.getRow().getData();
@@ -280,14 +283,14 @@ const EditableTable = () => {
           </button>
         </div>
       )}
-      {selectedRows}
+      {/* {selectedRows}
       {data.map((row) => {
         return (
           <div key={row.id}>
             {row.id} - {row.name} - {row.age} - {row.editable.toString()}
           </div>
         );
-      })}
+      })} */}
       <ReactTabulator
         ref={tableRef}
         columns={columns}
@@ -301,6 +304,10 @@ const EditableTable = () => {
           movableRows: true,
           pagination: "local",
           paginationSize: 3,
+          paginationInitialPage: currentPage,
+          paginationCounter: function (pageSize, currentRow, currentPage) {
+            setCurrentPage(currentPage);
+          },
         }}
       />
     </div>
