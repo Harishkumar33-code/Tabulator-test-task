@@ -34,7 +34,7 @@ const EditableTable = () => {
       titleFormatter: function () {
         return `<input
             type="checkbox"
-            id="header-check"
+            id="header-check" class="header-checkbox"
            ${headerChecked ? "checked" : ""}
             />`;
       },
@@ -49,7 +49,7 @@ const EditableTable = () => {
         });
         setData(alteredData);
       },
-      headerHozAlign: "center"
+      headerHozAlign: "center",
     },
     {
       title: "Name",
@@ -84,7 +84,7 @@ const EditableTable = () => {
     },
   ];
 
-  const handleRowSelection = (selectData) => {
+  const handleRowSelection = (selectData, rows = null) => {
     setEditMode(false);
     const selectedIds = selectData
       .filter((data) => data.checkbox)
@@ -104,7 +104,7 @@ const EditableTable = () => {
           });
           return { ...row, editable: true };
         }
-        return row;
+        return { ...row, disabled: true };
       });
     });
   };
@@ -143,10 +143,16 @@ const EditableTable = () => {
         const alteredData = data.map((rowData) => {
           if (res.id == rowData.id) {
             rowData.checkbox = !rowData.checkbox;
+            rowData.editable = !rowData.editable;
+            rowData.disabled = !rowData.disabled;
           }
           const editedData1 = editedData.find((data) => data.id === rowData.id);
           if (editedData1) {
-            return { ...editedData1, checkbox: rowData.checkbox };
+            return {
+              ...editedData1,
+              checkbox: rowData.checkbox,
+              editable: rowData.editable,
+            };
           }
           return rowData;
         });
@@ -158,9 +164,33 @@ const EditableTable = () => {
     },
   };
 
+  const rowFormatter = (row) => {
+    const data = row.getData();
+    if (!data.editable && data.disabled) {
+      row.getElement().classList.add(editedData?.length ? "disable" : "enable");
+    } else {
+      row
+        .getElement()
+        .classList.remove(editedData?.length ? "disable" : "enable");
+    }
+  };
+
   useEffect(() => {
     handleRowSelection(data);
   }, [data]);
+
+  useEffect(() => {
+    if (selectedRows.length === 0) {
+      setData((prevData) => {
+        return prevData.map((row) => ({
+          ...row,
+          disabled: false,
+          editable: false,
+        }));
+      });
+      setEditedData([]);
+    }
+  }, [selectedRows.length]);
 
   return (
     <div className="container">
@@ -171,7 +201,7 @@ const EditableTable = () => {
             className="btn edit-btn"
             id="edit-button"
             onClick={handleEdit}
-            disabled={editMode}
+            disabled={editedData?.length}
           >
             {selectedRows.length > 1 ? "Multi Edit" : "Edit"}
           </button>
@@ -200,6 +230,7 @@ const EditableTable = () => {
         layout="fitColumns"
         selectable={false}
         events={events}
+        rowFormatter={rowFormatter}
         options={{
           headerFilterPlaceholder: "Filter...",
           headerSortTristate: true,
